@@ -1,5 +1,6 @@
 var five = require("johnny-five");
 var raspi = require("raspi-io");
+var temporal = require("temporal")
 var board = new five.Board({
   io: new raspi()
 });
@@ -22,16 +23,20 @@ board.on("ready", function() {
     flowSignal(value);
   });
   //TODO: switch to temporal
-  setInterval(function() {
-    var liters = pulses;
-    liters /= PULSE_CONVERSION;
-    liters /= 60;
-    if (liters > MAX_LITERS){
-      solenoidInput.OFF();
-    }
-    console.log(liters);
-  }, 1000);
+  temporal.loop(1000, volumeChecker);
 });
+
+function volumeChecker () {
+  var liters = pulses;
+  liters /= PULSE_CONVERSION;
+  liters /= 60;
+  if (liters > MAX_LITERS){
+    solenoidInput.OFF();
+    console.log("Desired Volume Achieved");
+    process.exit();
+  }
+  console.log(liters);
+}
 
 // helper function to keep track of pulses
 function flowSignal (value) {
