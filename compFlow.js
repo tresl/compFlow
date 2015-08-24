@@ -6,14 +6,15 @@ var board = new five.Board({
 });
 var pulses = 0;
 var lastFlowRateTimer = 0;
-var MAX_LITERS = 10; //Desired volume in liters
+var MAX_LITERS = 1; //Desired volume in liters
 var PULSE_CONVERSION = 7.5 // Constant to convert # of pulses into liters
 var solenoidInput = new five.Relay({
-  pin: 2
+  pin: 2,
+  type: "NC"
 });
 
 board.on("ready", function() {
-  solenoidInput.ON();
+  solenoidInput.open();
   this.pinMode(7, five.Pin.INPUT);
   lastFlowPinState = 0;
 
@@ -31,7 +32,7 @@ function volumeChecker () {
   liters /= PULSE_CONVERSION;
   liters /= 60;
   if (liters > MAX_LITERS){
-    solenoidInput.OFF();
+    solenoidInput.close();
     console.log("Desired Volume Achieved");
     process.exit();
   }
